@@ -2,8 +2,9 @@ import axios from "axios"
 import {UploadOutlined} from '@ant-design/icons'
 import {Form, Row, Col, Upload, Typography, Button, message} from 'antd'
 import './App.css';
+import { useState, useEffect } from "react";
 const {Title} = Typography;
-const URL = "http://localhost:3001";
+const URL = "http://localhost:300";
 
 const FORM_LAYOUT = {
   labelCol: {
@@ -18,11 +19,11 @@ const FORM_BTN_LAYOUT = {
   }
 }
 
-const uploadFile = (values) => {
-  console.log('file values', values.imageFile.file.originFileObj);
+const uploadFile = (props) => {
+  console.log('file values', props.imageFile.file.originFileObj);
   const data = new FormData();
   // console.log('values', values.imageFile.file.originalFileObj);
-  data.append("image-file", values.imageFile.file.originFileObj);
+  data.append("image-file", props.imageFile.file.originFileObj);
   axios.post(URL, data, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -34,11 +35,26 @@ const uploadFile = (values) => {
   })
 }
 
-const dummyRequest = (arg1, arg2) => {
-  console.log('Dummy Rq');
-}
-
+  
 function App() {
+
+  const [img, setImg] = useState();
+
+
+  const fetchImages = async() => {
+    const url = 'http://localhost:3001/fetchImage/image-file-1662375832677.png'
+
+    fetch(url)
+    .then(response => response.blob())
+    .then(imageBlob => {
+        const imageObjectURL = window.URL.createObjectURL(imageBlob);
+        setImg(imageObjectURL)
+    });
+  }
+  useEffect(() => {
+    fetchImages();
+  }, []);
+
   return (
     <div className="App">
       <Row align="middle" justify="center">
@@ -46,7 +62,7 @@ function App() {
           <Title level={2} style={{fontWeight: '300'}}>File Upload-Antd </Title>
           <Form name="file-upload-form" {...FORM_LAYOUT} onFinish={uploadFile}>
             <Form.Item label="Select a file to upload" name="imageFile">
-              <Upload customRequest={dummyRequest} showUploadList={false}>
+              <Upload  showUploadList={false}>
                 <Button icon={<UploadOutlined/>}>Click to upload</Button>
               </Upload>
             </Form.Item>
@@ -56,7 +72,10 @@ function App() {
           </Form>
         </Col>
       </Row>
-    </div>
+      <div>
+        <img src={img} alt="icons" />
+      </div>
+      </div>
   );
 }
 
