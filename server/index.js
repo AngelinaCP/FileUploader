@@ -11,9 +11,9 @@ app.use(express.static(__dirname));
 
 const PORT = 3001;
 
-const storage = multer.diskStorage({
+const storage = multer.diskStorage(
+    {
     destination: function(req, file, cb) {
-        console.log(__dirname);
         cb(null, path.join(__dirname, '/uploads/'));
     },
     filename: function(req, file, cb) {
@@ -30,23 +30,26 @@ const storage = multer.diskStorage({
 
 
 const upload = multer({storage: storage});
-const fileUpload = upload.fields([{name: 'image-file', maxCount: 1}])
+const fileUpload = upload.array('image-file')
 
-app.route('/').get((req, res) => {
-    res.json('./uploads/0835ff03377c8119d459c409fcecdc9a' + '.jpg')
-})
+// app.route('/').get((req, res) => {
+//     res.json('./uploads/0835ff03377c8119d459c409fcecdc9a' + '.jpg')
+// })
 
-app.get('/fetchImage/:file(*)', (req, res) => {
-    let file = req.params.file;
-    let fileLocation = path.join(__dirname + '/uploads/', file);
-    //res.send({image: fileLocation});
-    console.log('fileLocation', fileLocation);
-    res.sendFile(`${fileLocation}`)
-})
+// app.get('/fetchImage/:file(*)', (req, res) => {
+//     let file = req.params.file;
+//     let fileLocation = path.join(__dirname + '/uploads/', file);
+//     //res.send({image: fileLocation});
+//     console.log('fileLocation', fileLocation);
+//     res.sendFile(`${fileLocation}`)
+// })
 
-app.route('/').post(fileUpload, (req, res) => {
+app.post('/', upload.array('image-file', 4), (req, res) => {
+    console.log('here', req.files.length)
     const obj = JSON.parse(JSON.stringify(req.body));
-    console.log(obj);
+    req.files.forEach(({filename}) => {
+        console.log(filename)
+    })
     res.json({message: "Form submitted successfully"})
 })
 
